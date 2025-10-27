@@ -27,6 +27,7 @@ generator client {
 // Defines user roles within the system
 enum UserRole {
   CUSTOMER
+  CASHIER
   ADMIN
 }
 
