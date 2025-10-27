@@ -2,7 +2,7 @@ import { PaginatedResBodyDTO, ResBodyDTO } from "@/common/dto/response.dto";
 import { HttpStatus } from "@nestjs/common";
 import { ApiProperty, ApiPropertyOptional, OmitType } from "@nestjs/swagger";
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
-import { User, Status, UserRole, Gender } from "@/modules/prisma/prisma.models";
+import { User, GeneralStatus, UserRole, Gender } from "@/modules/prisma/prisma.models";
 
 export class UserDTO implements User {
   @ApiProperty({ type: "number" })
@@ -23,14 +23,17 @@ export class UserDTO implements User {
   @ApiProperty()
   password: string;
 
-  @ApiProperty({ enum: Status, default: Status.ACTIVE })
-  status: Status;
+  @ApiProperty({ enum: GeneralStatus, default: GeneralStatus.ACTIVE })
+  status: GeneralStatus;
 
   @ApiProperty({ enum: Gender, nullable: true })
   gender: Gender | null;
 
-  @ApiProperty({ enum: UserRole, default: UserRole.USER })
+  @ApiProperty({ enum: UserRole, default: UserRole.CUSTOMER })
   role: UserRole;
+
+  @ApiProperty({ type: "number" })
+  creditScore: number;
 
   @ApiProperty({ type: Date })
   createdAt: Date;
@@ -72,8 +75,8 @@ export class CreateUserDTO {
   @ApiProperty({ type: "string", enum: Gender })
   gender: Gender | null;
 
-  @ApiProperty({ type: "string", enum: UserRole })
-  role: UserRole;
+  @ApiPropertyOptional({ type: "string", enum: UserRole })
+  role?: UserRole;
 }
 
 export class ChangeUserRoleDTO {

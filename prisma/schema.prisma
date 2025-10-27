@@ -115,6 +115,7 @@ enum NotificationType {
 model User {
   id        Int      @id @default(autoincrement())
   firstName String
+  middleName String?
   lastName  String
   email     String   @unique
   password  String   @db.Text
@@ -129,15 +130,15 @@ model User {
 
   // --- Relations ---
   account         Account[]         // A customer has many savings accounts
-  sessions        Session[]        // For device/session tracking
+  sessions        UserSession[]        // For device/session tracking
   loans           Loan[]           @relation("UserLoans") // Loans requested by user
   approvedLoans   Loan[]           @relation("AdminApprovals") // Loans approved by admin
   creditScoreLogs CreditScoreLog[] // Full history of score changes
   notifications   Notification[]   // In-app notifications
 }
 
-model Session {
-  id           String    @id @default(cuid())
+model UserSession {
+  id           Int    @id @default(autoincrement())
   userId       Int
   refreshToken String    @unique @db.Text
   deviceInfo   String?   // User-Agent

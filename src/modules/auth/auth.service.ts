@@ -2,11 +2,13 @@ import { HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "@/modules/users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import { JwtPayload } from "@/common/types";
-import { User } from "@/modules/prisma/prisma.models";
+import { User, GeneralStatus } from "@/modules/prisma/prisma.models";
 import { compare } from "bcryptjs";
 import { LoginResBodyDataDTO } from "@/modules/auth/dto/login.dto";
 import { ResBodyDTO } from "@/common/dto/response.dto";
 import { ConfigService } from "@nestjs/config";
+import { v4 as uuiv4 } from "uuid";
+import { SessionsService } from "@/modules/sessions/sessions.service";
 
 @Injectable()
 export class AuthService {
@@ -14,6 +16,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private sessionsService: SessionsService,
   ) {}
 
   async validateUser(username: string, password: string) {
@@ -34,6 +37,20 @@ export class AuthService {
       sub: user.id,
       role: result.data.role,
     };
+    const refreshToken = uuiv4().replace(/-/g, "") + uuiv4().replace(/-/g, "") + uuiv4().replace(/-/g, "");
+    const refreshTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+
+    await this.sessionsService.deactivateAllUserSessions(user.id);
+
+    await this.sessionsService.createSession({
+      userId: user.id,
+      refreshToken,
+      expiresAt: refreshTokenExpiry,
+      status: GeneralStatus.ACTIVE,
+      deviceInfo: null,
+      ipAddress: null,
+    });
+
     return {
       statusCode: HttpStatus.OK,
       message: "Login successful",
@@ -44,9 +61,26 @@ export class AuthService {
           secret: this.configService.get<string>("JWT_SECRET", "default"),
           expiresIn: `${this.configService.get<number>("JWT_EXPIRY_MINUTES", 120)} Min`,
         }),
-        refreshToken: "",
-        refreshTokenExpiry: new Date(Date.now()),
+        refreshToken,
+        refreshTokenExpiry,
       },
     };
+  }
+
+  async refreshAccessToken(refreshToken: string): Promise<ResBodyDTO<LoginResBodyDataDTO>> {
+    const session = await this.sessionsService.getSessionByRefreshToken(refreshToken);
+    if (session && session.expiresAt > new Date(Date.now())) {
+      const result = await this.usersService.findById(session.userId);
+      return await this.login(result.data);
+    } else {
+      return {
+        statusCode: HttpStatus.FORBIDDEN,
+        message: "Forbidden: Invalid/Expired refresh token",
+      };
+    }
+  }
+
+  async logout(userId: number): Promise<void> {
+    await this.sessionsService.deactivateAllUserSessions(userId);
   }
 }

@@ -8,10 +8,12 @@ import { AuthController } from "./auth.controller";
 import { LocalStrategy } from "@/modules/auth/strategies/local.strategy";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "@/modules/prisma/prisma.service";
+import { SessionsModule } from "@/modules/sessions/sessions.module";
 
 @Module({
   imports: [
     UsersModule,
+    SessionsModule,
     JwtModule.registerAsync({
       global: true,
       useFactory: (configService: ConfigService) => ({

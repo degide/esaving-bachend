@@ -10,6 +10,7 @@ import { LoansModule } from "@/modules/loans/loans.module";
 import { AdminModule } from "@/modules/admin/admin.module";
 import { NotificationsModule } from "@/modules/notifications/notifications.module";
 import { UserHasAnyRoleGuard, UserHasRolesGuard } from "@/common/guards/role.guard";
+import { SessionsModule } from "@/modules/sessions/sessions.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UserHasAnyRoleGuard, UserHasRolesGuard } from "@/common/guards/role.gua
     LoansModule,
     AdminModule,
     NotificationsModule,
+    SessionsModule,
   ],
   providers: [
     PrismaService,

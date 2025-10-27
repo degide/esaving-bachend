@@ -1,11 +1,11 @@
-import { Controller, Post, UseGuards, Req, Body, HttpStatus, HttpCode, Res } from "@nestjs/common";
+import { Controller, Post, UseGuards, Req, Body, HttpStatus, HttpCode, Res, Put, Headers } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "@/common/guards/jwt-auth.guard";
 import { LocalAuthGuard } from "@/common/guards/local-auth.guard";
 import { User } from "@/modules/prisma/prisma.models";
 import { LoginDTO, LoginResBodyDTO } from "@/modules/auth/dto/login.dto";
-import { ApiBearerAuth, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiHeader, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
 
 @Controller({
   path: "api/auth",
@@ -31,6 +31,24 @@ export class AuthController {
     return res.status(result.statusCode).json(result);
   }
 
+  @Put("refresh-token")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Refresh the JWT access token",
+    description: "Refresh the JWT access token",
+  })
+  @ApiHeader({
+    name: "Refresh-Token",
+  })
+  @ApiOkResponse({
+    description: "Success",
+    type: LoginResBodyDTO,
+  })
+  async refreshAccessToken(@Req() req: Request, @Res() res: Response, @Headers("Refresh-Token") refreshToken: string) {
+    const result = await this.authService.refreshAccessToken(refreshToken);
+    return res.status(result.statusCode).json(result);
+  }
+
   @ApiOperation({
     summary: "User logout",
     description: "Logout user and invalidate the session.",
@@ -38,7 +56,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post("logout")
-  logout(@Req() req: Request) {
+  async logout(@Req() req: Request) {
+    await this.authService.logout((req.user as User).id);
     req.logout(() => {});
   }
 }

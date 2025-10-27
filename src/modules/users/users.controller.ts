@@ -4,7 +4,8 @@ import { UsersService } from "./users.service";
 import { CreateUserDTO, PaginatedUserResBodyDTO, UserCreatedResponseDTO, UserResBodyDTO } from "./dto/user.dto";
 import { Request, Response } from "express";
 import { JwtAuthGuard } from "@/common/guards/jwt-auth.guard";
-import { User } from "@/modules/prisma/prisma.models";
+import { User, UserRole } from "@/modules/prisma/prisma.models";
+import { UserHasRoles } from "@/common/decorators/auth.decorator";
 
 @Controller({
   path: "api/users",
@@ -16,6 +17,7 @@ export class UsersController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @UserHasRoles(UserRole.ADMIN)
   @ApiOperation({
     summary: "Get all users",
     description: "Retrieve a list of all users with pagination and search.",
@@ -49,7 +51,6 @@ export class UsersController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: "Create a new user",

@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { Prisma, Status, User, UserRole } from "@/modules/prisma/prisma.models";
+import { Prisma, GeneralStatus, User, UserRole } from "@/modules/prisma/prisma.models";
 import { PaginatedResBodyDTO, ResBodyDTO } from "@/common/dto/response.dto";
 import { PrismaService } from "@/modules/prisma/prisma.service";
 import { ChangeUserRoleDTO, CreateUserDTO, UserDTO } from "./dto/user.dto";
@@ -127,7 +127,7 @@ export class UsersService {
     const newUser = await this.prismaService.user.create({
       data: {
         ...dto,
-        status: Status.ACTIVE,
+        status: GeneralStatus.PENDING,
         password: hashSync(dto.password, this.configService.get<number>("BCRYPT_SALT", 10)),
       },
       omit: {
