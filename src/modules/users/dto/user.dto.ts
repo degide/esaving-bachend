@@ -2,7 +2,8 @@ import { PaginatedResBodyDTO, ResBodyDTO } from "@/common/dto/response.dto";
 import { HttpStatus } from "@nestjs/common";
 import { ApiProperty, ApiPropertyOptional, OmitType } from "@nestjs/swagger";
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
-import { User, GeneralStatus, UserRole, Gender } from "@/modules/prisma/prisma.models";
+import { User, GeneralStatus, UserRole, Gender, Account } from "@/modules/prisma/prisma.models";
+import { UserSessionDTO } from "@/modules/sessions/dto/session.dto";
 
 export class UserDTO implements User {
   @ApiProperty({ type: "number" })
@@ -11,7 +12,7 @@ export class UserDTO implements User {
   @ApiProperty()
   firstName: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({ nullable: true, default: null })
   middleName: string | null;
 
   @ApiProperty()
@@ -40,6 +41,12 @@ export class UserDTO implements User {
 
   @ApiProperty({ type: Date })
   updatedAt: Date;
+
+  @ApiPropertyOptional({ type: UserSessionDTO, isArray: true })
+  sessions?: UserSessionDTO[];
+
+  @ApiPropertyOptional()
+  accounts?: object;
 }
 
 export class CreateUserDTO {

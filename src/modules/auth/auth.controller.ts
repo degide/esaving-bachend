@@ -16,7 +16,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @ApiOperation({
-    summary: "User login",
+    summary: "User login. [ADMIN, CASHIER, CUSTOMER]",
     description: "Authenticate user and return JWT token.",
   })
   @UseGuards(LocalAuthGuard)
@@ -34,7 +34,7 @@ export class AuthController {
   @Put("refresh-token")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Refresh the JWT access token",
+    summary: "Refresh the JWT access token. [ADMIN, CASHIER, CUSTOMER]",
     description: "Refresh the JWT access token",
   })
   @ApiHeader({
@@ -50,7 +50,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: "User logout",
+    summary: "User logout. [ADMIN, CASHIER, CUSTOMER]",
     description: "Logout user and invalidate the session.",
   })
   @UseGuards(JwtAuthGuard)

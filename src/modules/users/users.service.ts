@@ -1,11 +1,13 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { Prisma, GeneralStatus, User, UserRole } from "@/modules/prisma/prisma.models";
+import { Prisma, GeneralStatus, User, UserRole, AccountType } from "@/modules/prisma/prisma.models";
 import { PaginatedResBodyDTO, ResBodyDTO } from "@/common/dto/response.dto";
 import { PrismaService } from "@/modules/prisma/prisma.service";
 import { ChangeUserRoleDTO, CreateUserDTO, UserDTO } from "./dto/user.dto";
 import { hashSync } from "bcryptjs";
 import { plainToClass } from "class-transformer";
+import { UserProfileDTO } from "./dto/user-profile.dto";
+import { UserSessionDTO } from "@/modules/sessions/dto/session.dto";
 
 @Injectable()
 export class UsersService {
@@ -14,7 +16,7 @@ export class UsersService {
     private configService: ConfigService,
   ) {}
 
-  async getUsers(page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResBodyDTO<Omit<User, "password">>> {
+  async getUsers(page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResBodyDTO<Omit<UserDTO, "password">>> {
     const where: Prisma.UserWhereInput = search
       ? {
           OR: [
@@ -74,10 +76,17 @@ export class UsersService {
     };
   }
 
-  async getUserProfile(userId: number) {
+  async getUserProfile(userId: number): Promise<ResBodyDTO<UserProfileDTO>> {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
+      },
+      include: {
+        sessions: {
+          where: {
+            status: GeneralStatus.ACTIVE,
+          },
+        },
       },
       omit: {
         password: true,
@@ -92,7 +101,14 @@ export class UsersService {
     return {
       statusCode: HttpStatus.OK,
       message: "User found",
-      data: user,
+      data: {
+        user: plainToClass(UserDTO, { ...user, sessions: undefined }),
+        activeSessions: user.sessions.map((userSession) =>
+          plainToClass(UserSessionDTO, {
+            ...userSession,
+          }),
+        ),
+      },
     };
   }
 
@@ -181,6 +197,47 @@ export class UsersService {
       data: plainToClass(UserDTO, {
         ...user,
       }),
+    };
+  }
+
+  async updateStatus(userId: number, newStatus: GeneralStatus): Promise<ResBodyDTO<UserDTO>> {
+    const user = await this.prismaService.user.findFirst({
+      where: { id: userId },
+    });
+
+    if (!user)
+      return {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: "User not found",
+      };
+
+    const userAccounts = await this.prismaService.account.findMany({
+      where: { userId: user.id },
+    });
+
+    //create account upon approval of customer accounts
+    if (user.role == UserRole.CUSTOMER && userAccounts.length == 0 && newStatus == GeneralStatus.ACTIVE) {
+      await this.prismaService.account.create({
+        data: {
+          status: GeneralStatus.ACTIVE,
+          userId: user.id,
+          balance: 0.0,
+          accountType: AccountType.SAVINGS,
+          accountNumber: `${Date.now()}`,
+        },
+      });
+    }
+
+    const updatedUser = await this.prismaService.user.update({
+      where: { id: userId },
+      data: { status: newStatus },
+      omit: { password: true },
+    });
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: "User updated",
+      data: plainToClass(UserDTO, updatedUser),
     };
   }
 

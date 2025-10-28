@@ -129,7 +129,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   // --- Relations ---
-  account         Account[]         // A customer has many savings accounts
+  accounts         Account[]         // A customer has many savings accounts
   sessions        UserSession[]        // For device/session tracking
   loans           Loan[]           @relation("UserLoans") // Loans requested by user
   approvedLoans   Loan[]           @relation("AdminApprovals") // Loans approved by admin

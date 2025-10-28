@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, HttpStatus, Injectable, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "@/modules/users/users.service";
 import { JwtService } from "@nestjs/jwt";
 import { JwtPayload } from "@/common/types";
@@ -28,6 +28,7 @@ export class AuthService {
   }
 
   async login(user?: User): Promise<ResBodyDTO<LoginResBodyDataDTO>> {
+    if (user?.status != GeneralStatus.ACTIVE) throw new ForbiddenException("Forbidden: User is not activated");
     if (!user) throw new UnauthorizedException("Unauthorized");
     const result = await this.usersService.findById(user.id);
     if (!result.data) throw new UnauthorizedException("Unauthorized");
