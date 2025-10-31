@@ -193,6 +193,10 @@ Update prisma schema `prisma/schema.prisma` to change/update the database schema
 
 
 ## Running with Docker
+
+A pre-build image using github workflows: `ghcr.io/degide/esaving-backend@latest`
+
+To build a local image, follow the following steps:
 1. Build image: `docker build -t esaving-backend@latest .`
 2. Run: `docker run -e DATABASE_URL="postgresql://..." -p 3000:3000 esaving-backend`
 
