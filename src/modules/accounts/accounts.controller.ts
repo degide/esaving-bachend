@@ -76,4 +76,21 @@ export class AccountsController {
     const result = await this.accountsService.findById(id);
     return res.status(result.statusCode).json(result);
   }
+
+  @Get("byAccountNumber/:accountNumber")
+  @UseGuards(JwtAuthGuard)
+  @UserHasAnyRole([UserRole.ADMIN, UserRole.CASHIER, UserRole.CUSTOMER])
+  @ApiOperation({
+    summary: "Get account by account number [CUSTOMER, CASHIER, ADMIN]",
+    description: "Retrieve a single account by its account number.",
+  })
+  @ApiParam({ name: "accountNumber", type: String })
+  @ApiOkResponse({
+    description: "Account details",
+    type: AccountResBodyDTO,
+  })
+  async getByAccountNumber(@Res() res: Response, @Param("accountNumber") accountNumber: string) {
+    const result = await this.accountsService.findByAccountNumber(accountNumber);
+    return res.status(result.statusCode).json(result);
+  }
 }

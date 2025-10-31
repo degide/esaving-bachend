@@ -170,17 +170,17 @@ model Account {
 model Transaction {
   id                   Int               @id @default(autoincrement())
   reference            String            @unique @default(cuid()) // Unique reference for auditing and idempotency
-  sourceAccountId      Int
-  destinationAccountId Int
+  sourceAccountId      Int?
+  destinationAccountId Int?
   type                 TransactionType
-  amount               Decimal           @db.Decimal(15, 2)
+  amount               Float           @db.DoublePrecision
   status               TransactionStatus @default(PENDING)
   description          String?
   createdAt            DateTime          @default(now())
 
   // --- Relations ---
-  sourceAccount      Account           @relation("SourceAccount", fields: [sourceAccountId], references: [id])
-  destinationAccount Account           @relation("DestinationAccount", fields: [destinationAccountId], references: [id])
+  sourceAccount      Account?           @relation("SourceAccount", fields: [sourceAccountId], references: [id])
+  destinationAccount Account?           @relation("DestinationAccount", fields: [destinationAccountId], references: [id])
   loan               Loan?             @relation(fields: [loanId], references: [id])
   loanId             Int?              @unique // This transaction might be a payment for a loan (one-to-one)
 }
@@ -188,10 +188,10 @@ model Transaction {
 model Loan {
   id                Int        @id @default(autoincrement())
   userId            Int        // The user who requested the loan
-  requestedAmount   Decimal    @db.Decimal(15, 2)
-  disbursedAmount   Decimal    @default(0.00) @db.Decimal(15, 2) // Amount after fees
-  totalPayable      Decimal    @db.Decimal(15, 2) // Principal + Total Interest
-  interestRate      Decimal    @db.Decimal(5, 2) // Annual interest rate
+  requestedAmount   Float      @db.DoublePrecision
+  disbursedAmount   Float      @default(0.00) @db.DoublePrecision // Amount after fees
+  totalPayable      Float      @db.DoublePrecision // Principal + Total Interest
+  interestRate      Float      @db.DoublePrecision // Annual interest rate
   termInMonths      Int
   status            LoanStatus @default(PENDING)
   approvedById      Int?       // The admin who approved the loan

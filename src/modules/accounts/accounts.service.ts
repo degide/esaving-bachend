@@ -62,4 +62,16 @@ export class AccountsService {
       data: accounts,
     };
   }
+
+  async findByAccountNumber(accountNumber: string): Promise<AccountResBodyDTO> {
+    const account = await this.prisma.account.findUnique({ where: { accountNumber } });
+
+    if (!account) throw new NotFoundException("Account not found");
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: "Success",
+      data: account,
+    };
+  }
 }

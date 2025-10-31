@@ -11,6 +11,7 @@ import { AdminModule } from "@/modules/admin/admin.module";
 import { NotificationsModule } from "@/modules/notifications/notifications.module";
 import { UserHasAnyRoleGuard, UserHasRolesGuard } from "@/common/guards/role.guard";
 import { SessionsModule } from "@/modules/sessions/sessions.module";
+import { TransactionsModule } from './modules/transactions/transactions.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SessionsModule } from "@/modules/sessions/sessions.module";
     AdminModule,
     NotificationsModule,
     SessionsModule,
+    TransactionsModule,
   ],
   providers: [
     PrismaService,
