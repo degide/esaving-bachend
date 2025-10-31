@@ -14,7 +14,7 @@ async function main() {
   console.log("connected to database. \nSeed system users with defaults");
   console.table([
     { email: "admin@esaving.com", password: "123456" },
-    { email: "tom@gmail.com", password: "123456" },
+    { email: "tom@gmail.com", password: "123456", accountNumber: "1761912407601" },
   ]);
   await prisma.$transaction([
     prisma.user.upsert({
@@ -38,7 +38,6 @@ async function main() {
         password: hashSync("123456", process.env.BCRYPT_SALT || 10),
         role: "ADMIN",
         gender: "MALE",
-        creditScore: 1000,
         status: "ACTIVE",
         middleName: null,
       },
@@ -64,9 +63,25 @@ async function main() {
         password: hashSync("123456", process.env.BCRYPT_SALT || 10),
         role: "CUSTOMER",
         gender: "MALE",
-        creditScore: 1000,
         status: "PENDING",
         middleName: "Jr.",
+      },
+    }),
+    prisma.account.upsert({
+      where: { userId: 3 },
+      create: {
+        id: 3,
+        accountNumber: "1761912407601",
+        userId: 3,
+        balance: 10000,
+        accountType: "SAVINGS",
+        status: "ACTIVE",
+      },
+      update: {
+        accountNumber: "1761912407601",
+        userId: 3,
+        accountType: "SAVINGS",
+        status: "ACTIVE",
       },
     }),
   ]);
