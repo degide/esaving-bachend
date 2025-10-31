@@ -1,0 +1,22 @@
+services:
+  esaving-backend:
+    build: .
+    ports:
+      - "5002:5002"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@esaving-db:5432/esavingdb
+      - JWT_SECRET=your_jwt_secret_key
+    depends_on:
+      - esaving-db
+
+  esaving-db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: esavingdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - esaving-db-data:/var/lib/postgresql/data
