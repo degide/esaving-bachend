@@ -1,0 +1,2558 @@
+openapi: 3.0.0
+paths:
+  /api/healthz:
+    get:
+      description: This endpoint is used to check the health of the API.
+      operationId: HealthzController_healthCheck
+      parameters: []
+      responses:
+        '200':
+          description: The API is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                    default: 200
+                  message:
+                    type: string
+                    default: Server is up and running
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      summary: Health check endpoint
+      tags:
+        - Health Check
+  /api/auth/login:
+    post:
+      description: Authenticate user and return JWT token.
+      operationId: AuthController_login
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDTO'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: User login. [ADMIN, CASHIER, CUSTOMER]
+      tags:
+        - Auth
+  /api/auth/refreshToken:
+    put:
+      description: Refresh the JWT access token
+      operationId: AuthController_refreshAccessToken
+      parameters:
+        - name: Refresh-Token
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Refresh the JWT access token. [ADMIN, CASHIER, CUSTOMER]
+      tags:
+        - Auth
+  /api/auth/logout:
+    post:
+      description: Logout user and invalidate the session.
+      operationId: AuthController_logout
+      parameters: []
+      responses:
+        '200':
+          description: ''
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: User logout. [ADMIN, CASHIER, CUSTOMER]
+      tags:
+        - Auth
+  /api/users:
+    get:
+      description: Retrieve a list of all users with pagination and search.
+      operationId: UsersController_getAllUsers
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            minimum: 10
+            type: number
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get all users [ADMIN]
+      tags:
+        - Users
+        - Admin
+    post:
+      description: Create a new user with the provided details.
+      operationId: UsersController_createUser
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDTO'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreatedResponseDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Create a new user. [ADMIN, CASHIER, CUSTOMER]
+      tags:
+        - Users
+  /api/users/userProfile:
+    get:
+      description: Retrieve the profile of the authenticated user.
+      operationId: UsersController_getUserProfile
+      parameters: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get user profile of the authenticated user. [ADMIN, CASHIER, CUSTOMER]
+      tags:
+        - Users
+  /api/users/approveUser/{userId}:
+    put:
+      description: >-
+        Update the user's status from PENDING to ACTIVE and create the savings
+        account.
+      operationId: UsersController_approveUser
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Approve pending user and create their saving account [ADMIN]
+      tags:
+        - Users
+        - Admin
+  /api/users/suspendUser/{userId}:
+    put:
+      description: Update the user's status from ACTIVE to SUSPENDED.
+      operationId: UsersController_suspendUser
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Suspend an active user [ADMIN]
+      tags:
+        - Users
+        - Admin
+  /api/users/activateUser/{userId}:
+    put:
+      description: Update the user's status from INACTIVE to ACTIVE.
+      operationId: UsersController_activateUser
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Activate inactive user [ADMIN]
+      tags:
+        - Users
+        - Admin
+  /api/notifications:
+    get:
+      description: >-
+        Retrieve a paginated list of notifications. Optionally filter by userId
+        and search by message.
+      operationId: NotificationsController_getAll
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            example: 10
+            type: number
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list of notifications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get all notifications (paginated, searchable)
+      tags:
+        - Notifications
+  /api/sessions/userSessions:
+    get:
+      description: Retrieve a list of all user sessions with pagination and search.
+      operationId: SessionsController_getAllUserSessions
+      parameters:
+        - name: page
+          required: true
+          in: query
+          schema:
+            minimum: 1
+            type: number
+        - name: limit
+          required: true
+          in: query
+          schema:
+            minimum: 10
+            type: number
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of user sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserSessionDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get all user sessions
+      tags:
+        - Sessions
+  /api/accounts:
+    get:
+      description: >-
+        Retrieve a paginated list of accounts. Optionally filter by userId and
+        search by account number.
+      operationId: AccountsController_getAll
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            example: 10
+            type: number
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: userId
+          required: false
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Paginated list of accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAccountResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get all accounts (paginated, searchable) [ADMIN]
+      tags:
+        - Accounts
+  /api/accounts/userAccounts/{userId}:
+    get:
+      description: Retrieve all accounts belonging to a specific user.
+      operationId: AccountsController_getByUserId
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of accounts for the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccountsResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get accounts by userId [CUSTOMER]
+      tags:
+        - Accounts
+  /api/accounts/{id}:
+    get:
+      description: Retrieve a single account by its id.
+      operationId: AccountsController_getById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get account by id [CUSTOMER, CASHIER, ADMIN]
+      tags:
+        - Accounts
+  /api/accounts/byAccountNumber/{accountNumber}:
+    get:
+      description: Retrieve a single account by its account number.
+      operationId: AccountsController_getByAccountNumber
+      parameters:
+        - name: accountNumber
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get account by account number [CUSTOMER, CASHIER, ADMIN]
+      tags:
+        - Accounts
+  /api/loans/request:
+    post:
+      operationId: LoansController_requestLoan
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanRequestDTO'
+      responses:
+        '200':
+          description: Created loan (pending)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Request a loan [CUSTOMER]
+      tags:
+        - Loans
+  /api/loans/repay:
+    post:
+      operationId: LoansController_repay
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoanRepayDTO'
+      responses:
+        '200':
+          description: Repayment transaction
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Repay a loan [CUSTOMER]
+      tags:
+        - Loans
+  /api/loans:
+    get:
+      operationId: LoansController_getAll
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            example: 10
+            type: number
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: userId
+          required: false
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Paginated list of loans
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLoanResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get loans (paginated). Admins/customers can filter by userId
+      tags:
+        - Loans
+  /api/loans/approve/{loanId}:
+    put:
+      operationId: LoansController_approve
+      parameters:
+        - name: loanId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Approved loan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Approve a loan [ADMIN]
+      tags:
+        - Loans
+  /api/loans/reject/{loanId}:
+    put:
+      operationId: LoansController_reject
+      parameters:
+        - name: loanId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Rejected loan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoanDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Reject a loan [ADMIN]
+      tags:
+        - Loans
+  /api/admin/userStats:
+    get:
+      description: Retrieve system users' statistics.
+      operationId: AdminController_getUserStats
+      parameters: []
+      responses:
+        '200':
+          description: User statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStatsDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get all user statistics [ADMIN]
+      tags:
+        - Admin
+  /api/transactions/deposit:
+    post:
+      description: Deposit funds into a user account
+      operationId: TransactionsController_deposit
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositWithdrawDTO'
+      responses:
+        '200':
+          description: Deposit transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Deposit funds [CUSTOMER]
+      tags:
+        - Transactions
+  /api/transactions/withdraw:
+    post:
+      description: Withdraw funds from a user account [CUSTOMER]
+      operationId: TransactionsController_withdraw
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositWithdrawDTO'
+      responses:
+        '200':
+          description: Withdraw transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Withdraw funds [CUSTOMER]
+      tags:
+        - Transactions
+  /api/transactions:
+    get:
+      description: Get all transactions (paginated, optional userId filter)
+      operationId: TransactionsController_getAll
+      parameters:
+        - name: page
+          required: false
+          in: query
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            example: 10
+            type: number
+        - name: search
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: userId
+          required: false
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Paginated list of transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionResBodyDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                statusCode: 401
+                error: Unauthorized
+                message: Unauthorized
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                statusCode: 403
+                error: Forbidden
+                message: Forbidden
+        '500':
+          description: Server error
+          content:
+            application/json:
+              example:
+                statusCode: 500
+                error: Internal server error
+                message: Internal server error
+      security:
+        - bearer: []
+      summary: Get all transactions [CUSTOMER, ADMIN]
+      tags:
+        - Transactions
+info:
+  title: ESaving API
+  description: ESaving API documentation. Digital Credit & Savings Platform
+  version: 1.0.0
+  contact: {}
+tags: []
+servers:
+  - url: /
+    description: Server URL
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  schemas:
+    LoginDTO:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    LoginResBodyDataDTO:
+      type: object
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string
+        refreshTokenExpiry:
+          format: date-time
+          type: string
+      required:
+        - token
+        - refreshToken
+        - refreshTokenExpiry
+    LoginResBodyDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 200
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/LoginResBodyDataDTO'
+      required:
+        - statusCode
+        - message
+        - data
+    UserSessionDTO:
+      type: object
+      properties:
+        id:
+          type: number
+        userId:
+          type: number
+        refreshToken:
+          type: string
+        deviceInfo:
+          type: string
+          nullable: true
+        ipAddress:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - PENDING
+            - SUSPENDED
+          default: ACTIVE
+        expiresAt:
+          format: date-time
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+      required:
+        - id
+        - userId
+        - refreshToken
+        - deviceInfo
+        - ipAddress
+        - status
+        - expiresAt
+        - createdAt
+    OmitTypeClass:
+      type: object
+      properties:
+        id:
+          type: number
+        firstName:
+          type: string
+        middleName:
+          type: object
+          nullable: true
+          default: null
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - PENDING
+            - SUSPENDED
+          default: ACTIVE
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+            - OTHER
+          nullable: true
+        role:
+          type: string
+          enum:
+            - CUSTOMER
+            - CASHIER
+            - ADMIN
+          default: CUSTOMER
+        creditScore:
+          type: number
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSessionDTO'
+        accounts:
+          type: object
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - status
+        - gender
+        - role
+        - creditScore
+        - createdAt
+        - updatedAt
+    PaginatedUserResBodyDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 200
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OmitTypeClass'
+        total:
+          type: number
+        totalPages:
+          type: number
+        page:
+          type: number
+        limit:
+          type: number
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+      required:
+        - statusCode
+        - message
+        - data
+        - total
+        - totalPages
+        - page
+        - limit
+        - hasNextPage
+        - hasPrevPage
+    UserProfileDTO:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/OmitTypeClass'
+        activeSessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSessionDTO'
+      required:
+        - user
+        - activeSessions
+    CreateUserDTO:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 3
+        middleName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          minLength: 3
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          maxLength: 6
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+            - OTHER
+        role:
+          type: string
+          enum:
+            - CUSTOMER
+            - CASHIER
+            - ADMIN
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+        - gender
+    UserCreatedResponseDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 201
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/OmitTypeClass'
+      required:
+        - statusCode
+        - message
+        - data
+    NotificationDTO:
+      type: object
+      properties:
+        id:
+          type: number
+        userId:
+          type: number
+        message:
+          type: string
+        type:
+          type: string
+          enum:
+            - LOAN_STATUS_UPDATE
+            - NEW_TRANSACTION
+            - PAYMENT_REMINDER
+            - PAYMENT_OVERDUE
+            - SECURITY_ALERT
+            - GENERAL_MESSAGE
+        isRead:
+          type: boolean
+        createdAt:
+          format: date-time
+          type: string
+      required:
+        - id
+        - userId
+        - message
+        - type
+        - isRead
+        - createdAt
+    PaginatedNotificationResBodyDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 200
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationDTO'
+        total:
+          type: number
+        totalPages:
+          type: number
+        page:
+          type: number
+        limit:
+          type: number
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+      required:
+        - statusCode
+        - message
+        - data
+        - total
+        - totalPages
+        - page
+        - limit
+        - hasNextPage
+        - hasPrevPage
+    PaginatedUserSessionDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 200
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSessionDTO'
+        total:
+          type: number
+        totalPages:
+          type: number
+        page:
+          type: number
+        limit:
+          type: number
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+      required:
+        - statusCode
+        - message
+        - data
+        - total
+        - totalPages
+        - page
+        - limit
+        - hasNextPage
+        - hasPrevPage
+    UserDTO:
+      type: object
+      properties:
+        id:
+          type: number
+        firstName:
+          type: string
+        middleName:
+          type: object
+          nullable: true
+          default: null
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - PENDING
+            - SUSPENDED
+          default: ACTIVE
+        gender:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+            - OTHER
+          nullable: true
+        role:
+          type: string
+          enum:
+            - CUSTOMER
+            - CASHIER
+            - ADMIN
+          default: CUSTOMER
+        creditScore:
+          type: number
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSessionDTO'
+        accounts:
+          type: object
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - password
+        - status
+        - gender
+        - role
+        - creditScore
+        - createdAt
+        - updatedAt
+    AccountDTO:
+      type: object
+      properties:
+        id:
+          type: number
+        accountNumber:
+          type: string
+        userId:
+          type: object
+          nullable: true
+        balance:
+          type: number
+        accountType:
+          type: string
+          enum:
+            - SAVINGS
+            - SYSTEM_FLOAT
+            - SYSTEM_FEES
+          default: SAVINGS
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - PENDING
+            - SUSPENDED
+          default: ACTIVE
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+        user:
+          $ref: '#/components/schemas/UserDTO'
+      required:
+        - id
+        - accountNumber
+        - userId
+        - balance
+        - accountType
+        - status
+        - createdAt
+        - updatedAt
+    PaginatedAccountResBodyDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 200
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDTO'
+        total:
+          type: number
+        totalPages:
+          type: number
+        page:
+          type: number
+        limit:
+          type: number
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+      required:
+        - statusCode
+        - message
+        - data
+        - total
+        - totalPages
+        - page
+        - limit
+        - hasNextPage
+        - hasPrevPage
+    UserAccountsResBodyDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 200
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDTO'
+      required:
+        - statusCode
+        - message
+        - data
+    AccountResBodyDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 200
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/AccountDTO'
+      required:
+        - statusCode
+        - message
+        - data
+    LoanRequestDTO:
+      type: object
+      properties:
+        requestedAmount:
+          type: number
+          description: Requested principal amount
+          example: 10000
+        termInMonths:
+          type: number
+          description: Loan term in months
+          example: 12
+        interestRate:
+          type: number
+          description: Annual interest rate (percentage)
+          example: 12.5
+      required:
+        - requestedAmount
+        - termInMonths
+        - interestRate
+    LoanDTO:
+      type: object
+      properties:
+        id:
+          type: number
+        userId:
+          type: number
+        requestedAmount:
+          type: number
+          description: Amount requested by user
+        disbursedAmount:
+          type: number
+          description: Amount disbursed (after fees)
+          example: 0
+        totalPayable:
+          type: number
+          description: Total remaining payable (principal + interest)
+          example: 12000
+        interestRate:
+          type: number
+          description: Annual interest rate (percentage)
+        termInMonths:
+          type: number
+          description: Term in months
+        status:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - ACTIVE
+            - PAID_OFF
+            - REJECTED
+            - DEFAULTED
+        approvedById:
+          type: object
+          description: Admin id who approved/rejected
+          example: null
+        disbursementDate:
+          type: string
+          description: Disbursement date
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - requestedAmount
+        - disbursedAmount
+        - totalPayable
+        - interestRate
+        - termInMonths
+        - status
+        - createdAt
+        - updatedAt
+    LoanRepayDTO:
+      type: object
+      properties:
+        loanId:
+          type: number
+          description: Loan id to repay
+          example: 1
+        accountId:
+          type: number
+          description: Account id to debit for repayment
+          example: 2
+        amount:
+          type: number
+          description: Repayment amount
+          example: 500
+        description:
+          type: string
+          description: Optional description for the repayment
+      required:
+        - loanId
+        - accountId
+        - amount
+    PaginatedLoanResBodyDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 200
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoanDTO'
+        total:
+          type: number
+        totalPages:
+          type: number
+        page:
+          type: number
+        limit:
+          type: number
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+      required:
+        - statusCode
+        - message
+        - data
+        - total
+        - totalPages
+        - page
+        - limit
+        - hasNextPage
+        - hasPrevPage
+    UserStatsDTO:
+      type: object
+      properties:
+        totalUsers:
+          type: number
+        pendingUsers:
+          type: number
+        activeUsers:
+          type: number
+        inactiveUsers:
+          type: number
+        suspendedUsers:
+          type: number
+      required:
+        - totalUsers
+        - pendingUsers
+        - activeUsers
+        - inactiveUsers
+        - suspendedUsers
+    DepositWithdrawDTO:
+      type: object
+      properties:
+        accountId:
+          type: number
+          description: Account ID to deposit/withdraw
+          example: 1
+        amount:
+          type: number
+          description: Amount to deposit/withdraw
+          example: 1000
+        description:
+          type: string
+          description: Description
+      required:
+        - accountId
+        - amount
+        - description
+    TransactionDTO:
+      type: object
+      properties:
+        id:
+          type: number
+        reference:
+          type: string
+        sourceAccountId:
+          type: object
+          nullable: true
+        loanId:
+          type: object
+          nullable: true
+        destinationAccountId:
+          type: object
+          nullable: true
+        type:
+          type: string
+          enum:
+            - DEPOSIT
+            - WITHDRAWAL
+            - LOAN_DISBURSEMENT
+            - LOAN_REPAYMENT
+            - PENALTY_PAYMENT
+            - INTERNAL_TRANSFER
+        amount:
+          type: number
+        status:
+          type: string
+          enum:
+            - PENDING
+            - COMPLETED
+            - FAILED
+            - REVERSED
+        description:
+          type: object
+        createdAt:
+          format: date-time
+          type: string
+        sourceAccount:
+          $ref: '#/components/schemas/AccountDTO'
+        destinationAccount:
+          $ref: '#/components/schemas/AccountDTO'
+      required:
+        - id
+        - reference
+        - sourceAccountId
+        - loanId
+        - destinationAccountId
+        - type
+        - amount
+        - status
+        - createdAt
+    PaginatedTransactionResBodyDTO:
+      type: object
+      properties:
+        statusCode:
+          type: number
+          enum:
+            - 100
+            - 101
+            - 102
+            - 103
+            - 200
+            - 201
+            - 202
+            - 203
+            - 204
+            - 205
+            - 206
+            - 207
+            - 208
+            - 210
+            - 300
+            - 301
+            - 302
+            - 303
+            - 304
+            - 307
+            - 308
+            - 400
+            - 401
+            - 402
+            - 403
+            - 404
+            - 405
+            - 406
+            - 407
+            - 408
+            - 409
+            - 410
+            - 411
+            - 412
+            - 413
+            - 414
+            - 415
+            - 416
+            - 417
+            - 418
+            - 421
+            - 422
+            - 423
+            - 424
+            - 428
+            - 429
+            - 456
+            - 500
+            - 501
+            - 502
+            - 503
+            - 504
+            - 505
+            - 507
+            - 508
+          default: 200
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionDTO'
+        total:
+          type: number
+        totalPages:
+          type: number
+        page:
+          type: number
+        limit:
+          type: number
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+      required:
+        - statusCode
+        - message
+        - data
+        - total
+        - totalPages
+        - page
+        - limit
+        - hasNextPage
+        - hasPrevPage
