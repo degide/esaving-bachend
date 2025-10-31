@@ -27,7 +27,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user?: User): Promise<ResBodyDTO<LoginResBodyDataDTO>> {
+  async login(ip: string, hosts: any, user?: User): Promise<ResBodyDTO<LoginResBodyDataDTO>> {
     if (user?.status != GeneralStatus.ACTIVE) throw new ForbiddenException("Forbidden: User is not activated");
     if (!user) throw new UnauthorizedException("Unauthorized");
     const result = await this.usersService.findById(user.id);
@@ -48,8 +48,8 @@ export class AuthService {
       refreshToken,
       expiresAt: refreshTokenExpiry,
       status: GeneralStatus.ACTIVE,
-      deviceInfo: null,
-      ipAddress: null,
+      deviceInfo: JSON.stringify(hosts),
+      ipAddress: ip,
     });
 
     return {
@@ -68,11 +68,11 @@ export class AuthService {
     };
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<ResBodyDTO<LoginResBodyDataDTO>> {
+  async refreshAccessToken(ip: string, hosts: string[], refreshToken: string): Promise<ResBodyDTO<LoginResBodyDataDTO>> {
     const session = await this.sessionsService.getSessionByRefreshToken(refreshToken);
     if (session && session.expiresAt > new Date(Date.now())) {
       const result = await this.usersService.findById(session.userId);
-      return await this.login(result.data);
+      return await this.login(ip, hosts, result.data);
     } else {
       return {
         statusCode: HttpStatus.FORBIDDEN,

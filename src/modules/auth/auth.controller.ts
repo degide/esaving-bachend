@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Req, Body, HttpStatus, HttpCode, Res, Put, Headers } from "@nestjs/common";
+import { Controller, Post, UseGuards, Req, Body, HttpStatus, HttpCode, Res, Put, Headers, Ip, HostParam } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { JwtAuthGuard } from "@/common/guards/jwt-auth.guard";
@@ -26,8 +26,8 @@ export class AuthController {
     description: "Success",
     type: LoginResBodyDTO,
   })
-  async login(@Req() req: Request, @Res() res: Response, @Body() body: LoginDTO) {
-    const result = await this.authService.login(req.user as User);
+  async login(@Req() req: Request, @Res() res: Response, @Body() body: LoginDTO, @Ip() ip: string, @HostParam() hosts: any) {
+    const result = await this.authService.login(ip, hosts, req.user as User);
     return res.status(result.statusCode).json(result);
   }
 
@@ -44,8 +44,14 @@ export class AuthController {
     description: "Success",
     type: LoginResBodyDTO,
   })
-  async refreshAccessToken(@Req() req: Request, @Res() res: Response, @Headers("Refresh-Token") refreshToken: string) {
-    const result = await this.authService.refreshAccessToken(refreshToken);
+  async refreshAccessToken(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Headers("Refresh-Token") refreshToken: string,
+    @Ip() ip: string,
+    @HostParam() hosts: any,
+  ) {
+    const result = await this.authService.refreshAccessToken(ip, hosts, refreshToken);
     return res.status(result.statusCode).json(result);
   }
 
