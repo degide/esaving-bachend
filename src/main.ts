@@ -19,8 +19,12 @@ async function bootstrap() {
     }),
   });
 
+  const configService = app.get(ConfigService);
+
+  const ORIGIN = configService.get<string>("FRONTEND_ORIGIN", "*");
+
   app.enableCors({
-    origin: "*",
+    origin: ORIGIN,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     allowedHeaders: "Content-Type, Authorization",
     credentials: true,
@@ -81,7 +85,6 @@ async function bootstrap() {
     yamlDocumentUrl: "/api/yaml",
   });
 
-  const configService = app.get(ConfigService);
   const PORT = configService.get<number>("PORT", DEFAULT_PORT);
 
   await app.listen(PORT, () => {

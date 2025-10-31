@@ -180,10 +180,10 @@ esaving-backens/
 
 ```bash
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
-PORT=3000
+PORT=5002
 NODE_ENV=development
 JWT_SECRET=supersecret
-JWT_EXPIRES_IN=1d
+JWT_EXPIRY_MINUTES=120
 ```
 Make sure secrets are stored in secret managers for production.
 
