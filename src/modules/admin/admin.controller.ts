@@ -16,7 +16,7 @@ import { AdminService } from "./admin.service";
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Get("user-stats")
+  @Get("userStats")
   @UseGuards(JwtAuthGuard)
   @UserHasRoles(UserRole.ADMIN)
   @ApiOperation({

@@ -31,7 +31,7 @@ export class AuthController {
     return res.status(result.statusCode).json(result);
   }
 
-  @Put("refresh-token")
+  @Put("refreshToken")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: "Refresh the JWT access token. [ADMIN, CASHIER, CUSTOMER]",

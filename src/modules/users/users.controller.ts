@@ -56,7 +56,7 @@ export class UsersController {
     return res.status(result.statusCode).json(result);
   }
 
-  @Get("user-profile")
+  @Get("userProfile")
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: "Get user profile of the authenticated user. [ADMIN, CASHIER, CUSTOMER]",
@@ -86,12 +86,12 @@ export class UsersController {
     return res.status(result.statusCode).json(result);
   }
 
-  @Put("approve-user/:userId")
+  @Put("approveUser/:userId")
   @UseGuards(JwtAuthGuard)
   @UserHasRoles(UserRole.ADMIN)
   @ApiTags("Admin")
   @ApiOperation({
-    summary: "Approve pending user [ADMIN]",
+    summary: "Approve pending user and create their saving account [ADMIN]",
     description: "Update the user's status from PENDING to ACTIVE and create the savings account.",
   })
   @ApiParam({ name: "userId", type: Number })
@@ -100,7 +100,7 @@ export class UsersController {
     return res.status(resBody.statusCode).send(resBody);
   }
 
-  @Put("suspend-user/:userId")
+  @Put("suspendUser/:userId")
   @UseGuards(JwtAuthGuard)
   @UserHasRoles(UserRole.ADMIN)
   @ApiTags("Admin")
@@ -114,13 +114,13 @@ export class UsersController {
     return res.status(resBody.statusCode).send(resBody);
   }
 
-  @Put("activate-user/:userId")
+  @Put("activateUser/:userId")
   @UseGuards(JwtAuthGuard)
   @UserHasRoles(UserRole.ADMIN)
   @ApiTags("Admin")
   @ApiOperation({
     summary: "Activate inactive user [ADMIN]",
-    description: "Update the user's status from INACTIVE to .",
+    description: "Update the user's status from INACTIVE to ACTIVE.",
   })
   @ApiParam({ name: "userId", type: Number })
   async activateUser(@Res() res: Response, @Param("userId", ParseIntPipe) userId: number) {

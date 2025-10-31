@@ -15,7 +15,7 @@ import { User } from "@/modules/prisma/prisma.models";
 export class SessionsController {
   constructor(private readonly sessionsService: SessionsService) {}
 
-  @Get("user-sessions")
+  @Get("userSessions")
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: "Get all user sessions",

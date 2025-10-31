@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { Prisma, GeneralStatus, User, UserRole, AccountType } from "@/modules/prisma/prisma.models";
+import { Prisma, GeneralStatus, User, UserRole, AccountType, NotificationType } from "@/modules/prisma/prisma.models";
 import { PaginatedResBodyDTO, ResBodyDTO } from "@/common/dto/response.dto";
 import { PrismaService } from "@/modules/prisma/prisma.service";
 import { ChangeUserRoleDTO, CreateUserDTO, UserDTO } from "./dto/user.dto";
@@ -8,12 +8,15 @@ import { hashSync } from "bcryptjs";
 import { plainToClass } from "class-transformer";
 import { UserProfileDTO } from "./dto/user-profile.dto";
 import { UserSessionDTO } from "@/modules/sessions/dto/session.dto";
+import { NotificationsService } from "../notifications/notifications.service";
+import { notifications } from "@/config/notification.config";
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prismaService: PrismaService,
     private configService: ConfigService,
+    private readonly notificationsSerice: NotificationsService,
   ) {}
 
   async getUsers(page: number = 1, limit: number = 10, search?: string): Promise<PaginatedResBodyDTO<Omit<UserDTO, "password">>> {
@@ -151,6 +154,12 @@ export class UsersService {
       },
     });
 
+    await this.notificationsSerice.createNotification(
+      newUser.id,
+      notifications.account_created.replace("{name}", `${newUser.firstName} ${newUser.lastName}`),
+      NotificationType.GENERAL_MESSAGE,
+    );
+
     return {
       statusCode: HttpStatus.CREATED,
       message: "User created",
@@ -233,6 +242,24 @@ export class UsersService {
       data: { status: newStatus },
       omit: { password: true },
     });
+
+    let notification: string | null = null;
+    const notificationType = NotificationType.GENERAL_MESSAGE;
+
+    switch (newStatus) {
+      case GeneralStatus.ACTIVE:
+        notification = notifications.account_activated.replace("{name}", `${updatedUser.firstName} ${updatedUser.lastName}`);
+        break;
+      case GeneralStatus.SUSPENDED:
+        notification = notifications.account_suspended;
+        break;
+      default:
+        notification = null;
+    }
+
+    if (notification) {
+      await this.notificationsSerice.createNotification(updatedUser.id, notification, notificationType);
+    }
 
     return {
       statusCode: HttpStatus.OK,
