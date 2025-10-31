@@ -19,7 +19,7 @@ export class TransactionsController {
   @Post("deposit")
   @UseGuards(JwtAuthGuard)
   @UserHasRoles([UserRole.CUSTOMER])
-  @ApiOperation({ summary: "Deposit funds", description: "Deposit funds into a user account [CUSTOMER]" })
+  @ApiOperation({ summary: "Deposit funds [CUSTOMER]", description: "Deposit funds into a user account" })
   @ApiBody({ type: DepositWithdrawDTO })
   @ApiOkResponse({ description: "Deposit transaction", type: TransactionDTO })
   async deposit(@Req() req: Request, @Res() res: Response, @Body() dto: DepositWithdrawDTO) {
@@ -31,7 +31,7 @@ export class TransactionsController {
   @Post("withdraw")
   @UseGuards(JwtAuthGuard)
   @UserHasRoles([UserRole.CUSTOMER])
-  @ApiOperation({ summary: "Withdraw funds", description: "Withdraw funds from a user account [CUSTOMER]" })
+  @ApiOperation({ summary: "Withdraw funds [CUSTOMER]", description: "Withdraw funds from a user account [CUSTOMER]" })
   @ApiBody({ type: DepositWithdrawDTO })
   @ApiOkResponse({ description: "Withdraw transaction", type: TransactionDTO })
   async withdraw(@Req() req: Request, @Res() res: Response, @Body() dto: DepositWithdrawDTO) {
@@ -42,7 +42,10 @@ export class TransactionsController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: "Get all transactions", description: "Get all transactions (paginated, optional userId filter)" })
+  @ApiOperation({
+    summary: "Get all transactions [CUSTOMER, ADMIN]",
+    description: "Get all transactions (paginated, optional userId filter)",
+  })
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "limit", required: false, type: Number, example: 10 })
   @ApiQuery({ name: "userId", required: false, type: Number })

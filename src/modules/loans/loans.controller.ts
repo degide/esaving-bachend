@@ -42,7 +42,7 @@ export class LoansController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: "Get loans (paginated). Admins/CUSTOMERS can filter by userId" })
+  @ApiOperation({ summary: "Get loans (paginated). Admins/customers can filter by userId" })
   @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
   @ApiQuery({ name: "limit", required: false, type: Number, example: 10 })
   @ApiQuery({ name: "search", required: false, type: String })
